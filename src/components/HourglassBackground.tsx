@@ -59,8 +59,8 @@ export default function HourglassBackground() {
       const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       return {
         bg: isDark ? "#0a0a0a" : "#ffffff",
-        sand: isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.04)",
-        falling: isDark ? "rgba(255, 255, 255, 0.07)" : "rgba(0, 0, 0, 0.06)",
+        sand: isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.05)",
+        falling: isDark ? "rgba(255, 255, 255, 0.10)" : "rgba(0, 0, 0, 0.08)",
         splashBase: isDark ? [255, 255, 255] as const : [0, 0, 0] as const,
       };
     }
