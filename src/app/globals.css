@@ -19,8 +19,9 @@
   }
 }
 
-html {
-  background: var(--background);
+html,
+body {
+  background: transparent;
 }
 
 body {

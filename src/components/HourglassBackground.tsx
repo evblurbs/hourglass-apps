@@ -24,22 +24,29 @@ export default function HourglassBackground() {
     const DURATION = 60_000;
     const DOT_SPACING = 5;
     const DOT_SIZE = 1.5;
-    const SAND_COLOR = "rgba(255, 255, 255, 0.035)";
-    const FALLING_COLOR = "rgba(255, 255, 255, 0.055)";
     const GRAVITY = 0.06;
     const NAV_HEIGHT = 57;
     const FOOTER_HEIGHT = 73;
     const MAX_FALLING = 80;
 
     // Volume lookup tables for smooth draining
-    let upperVolTable: number[] = []; // cumulative volume at each pixel row from top
-    let upperYTable: number[] = []; // corresponding y values
-    let lowerVolTable: number[] = []; // cumulative volume at each pixel row from bottom
-    let lowerYTable: number[] = []; // corresponding y values
+    let upperVolTable: number[] = [];
+    let upperYTable: number[] = [];
+    let lowerVolTable: number[] = [];
+    let lowerYTable: number[] = [];
     let totalUpperVol = 0;
     let totalLowerVol = 0;
 
     const geo = { cx: 0, cy: 0, top: 0, bottom: 0, w: 0, neck: 0 };
+
+    function getColors() {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return {
+        bg: isDark ? "#0a0a0a" : "#ffffff",
+        sand: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
+        falling: isDark ? "rgba(255, 255, 255, 0.14)" : "rgba(0, 0, 0, 0.10)",
+      };
+    }
 
     function widthAt(y: number): number {
       const halfH = (geo.bottom - geo.top) / 2;
@@ -69,7 +76,6 @@ export default function HourglassBackground() {
       lowerVolTable = [];
       lowerYTable = [];
 
-      // Upper: top -> cy
       let cumVol = 0;
       for (let y = Math.floor(geo.top); y <= Math.floor(geo.cy); y++) {
         cumVol += widthAt(y);
@@ -78,7 +84,6 @@ export default function HourglassBackground() {
       }
       totalUpperVol = cumVol;
 
-      // Lower: bottom -> cy (scanning upward)
       cumVol = 0;
       for (let y = Math.floor(geo.bottom); y >= Math.ceil(geo.cy); y--) {
         cumVol += widthAt(y);
@@ -88,7 +93,6 @@ export default function HourglassBackground() {
       totalLowerVol = cumVol;
     }
 
-    // Binary search: find y where cumulative vol from top >= target
     function getUpperSandSurface(progress: number): number {
       if (progress <= 0) return geo.top;
       if (progress >= 1) return geo.cy;
@@ -103,7 +107,6 @@ export default function HourglassBackground() {
       return upperYTable[lo];
     }
 
-    // Binary search: find y where cumulative vol from bottom >= target
     function getLowerSandSurface(progress: number): number {
       if (progress <= 0) return geo.bottom;
       if (progress >= 1) return geo.cy;
@@ -129,7 +132,11 @@ export default function HourglassBackground() {
     window.addEventListener("resize", resize);
 
     function draw() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      const colors = getColors();
+
+      // Fill canvas with the page background color so it's opaque
+      ctx!.fillStyle = colors.bg;
+      ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / DURATION, 1);
@@ -137,7 +144,7 @@ export default function HourglassBackground() {
       const topSurface = getUpperSandSurface(progress);
       const bottomSurface = getLowerSandSurface(progress);
 
-      ctx!.fillStyle = SAND_COLOR;
+      ctx!.fillStyle = colors.sand;
 
       // Upper sand: from topSurface down to neck
       if (progress < 1) {
@@ -171,7 +178,7 @@ export default function HourglassBackground() {
         });
       }
 
-      ctx!.fillStyle = FALLING_COLOR;
+      ctx!.fillStyle = colors.falling;
       for (let i = falling.length - 1; i >= 0; i--) {
         const p = falling[i];
         p.vy += GRAVITY;
