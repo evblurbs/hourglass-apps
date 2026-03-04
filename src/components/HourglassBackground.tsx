@@ -38,7 +38,7 @@ export default function HourglassBackground() {
     let animationId: number;
     let falling: FallingParticle[] = [];
     let splashes: SplashParticle[] = [];
-    const DURATION = 25 * 60 * 1000; // 25 minutes
+    const DURATION = 2 * 60 * 1000; // 2 minutes (testing)
     const DOT_SPACING = 5;
     const DOT_SIZE = 1.5;
     const GRAVITY = 0.06;
