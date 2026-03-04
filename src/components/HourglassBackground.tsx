@@ -70,7 +70,7 @@ export default function HourglassBackground() {
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
       const capWidth = Math.min(768 * 0.4, geo.w * 0.5);
-      const bulbZone = 0.15;
+      const bulbZone = 0.3;
 
       // Mirror: use distance from nearest end so both halves are identical
       const distFromEnd = ry <= halfH ? ry : halfH * 2 - ry;
