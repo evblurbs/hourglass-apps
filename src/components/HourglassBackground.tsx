@@ -89,7 +89,7 @@ export default function HourglassBackground() {
       geo.bottom = footerTop;
       geo.cy = geo.top + (geo.bottom - geo.top) / 2;
       geo.w = Math.min(canvas!.width * 0.75, (geo.bottom - geo.top) * 0.55);
-      geo.neck = geo.w * 0.035;
+      geo.neck = 6;
     }
 
     function computeVolumeTables() {
