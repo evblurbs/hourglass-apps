@@ -55,9 +55,9 @@ export default function HourglassBackground() {
         const t = ry / halfH; // 0 at top, 1 at neck
         return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       } else {
-        // Lower half: narrow at neck, curves out to wide base
+        // Lower bulb: same sin curve as top, mirrored
         const t = (ry - halfH) / halfH; // 0 at neck, 1 at bottom
-        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI / 2));
+        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       }
     }
 
