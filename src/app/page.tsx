@@ -29,7 +29,7 @@ export default function Home() {
         <h1 className="mb-3 text-3xl font-bold tracking-tight">
           Hourglass Apps
         </h1>
-        <p className="max-w-lg text-zinc-600 dark:text-zinc-400">
+        <p className="text-zinc-600 dark:text-zinc-400">
           Apps built to make the most of your time. Here&apos;s what we&apos;re working on.
         </p>
       </section>
