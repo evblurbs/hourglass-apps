@@ -62,12 +62,14 @@ export default function HourglassBackground() {
       const halfH = (geo.bottom - geo.top) / 2;
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
+      // ~20% of content width (max-w-3xl = 768px)
+      const capWidth = Math.min(768 * 0.2, geo.w * 0.3);
       if (ry <= halfH) {
         const t = ry / halfH;
-        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
+        return Math.max(geo.neck, capWidth + (geo.w - capWidth) * Math.sin(t * Math.PI));
       } else {
         const t = (ry - halfH) / halfH;
-        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
+        return Math.max(geo.neck, capWidth + (geo.w - capWidth) * Math.sin(t * Math.PI));
       }
     }
 
