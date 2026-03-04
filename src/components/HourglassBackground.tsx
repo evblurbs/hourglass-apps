@@ -70,33 +70,21 @@ export default function HourglassBackground() {
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
       const capWidth = Math.min(768 * 0.4, geo.w * 0.5);
-      const bulbZone = 0.15; // 15% for the bulb ramp at each end
+      const bulbZone = 0.15;
 
-      if (ry <= halfH) {
-        const t = ry / halfH; // 0 at top, 1 at neck
-        if (t <= bulbZone) {
-          // Smooth ramp from capWidth up to geo.w
-          const s = t / bulbZone;
-          const smooth = s * s * (3 - 2 * s);
-          return capWidth + (geo.w - capWidth) * smooth;
-        } else {
-          // Concave funnel from geo.w down to neck
-          const s = (t - bulbZone) / (1 - bulbZone);
-          return geo.neck + (geo.w - geo.neck) * (1 - s * s);
-        }
+      // Mirror: use distance from nearest end so both halves are identical
+      const distFromEnd = ry <= halfH ? ry : halfH * 2 - ry;
+      const t = distFromEnd / halfH; // 0 at cap, 1 at neck
+
+      if (t <= bulbZone) {
+        // Smooth ramp from capWidth to geo.w
+        const s = t / bulbZone;
+        const smooth = s * s * (3 - 2 * s);
+        return capWidth + (geo.w - capWidth) * smooth;
       } else {
-        const t = (ry - halfH) / halfH; // 0 at neck, 1 at bottom
-        const bulbStart = 1 - bulbZone;
-        if (t >= bulbStart) {
-          // Smooth ramp from geo.w back down to capWidth
-          const s = (t - bulbStart) / bulbZone;
-          const smooth = s * s * (3 - 2 * s);
-          return geo.w + (capWidth - geo.w) * smooth;
-        } else {
-          // Concave funnel from neck up to geo.w
-          const s = t / bulbStart;
-          return geo.neck + (geo.w - geo.neck) * s * s;
-        }
+        // Concave funnel from geo.w down to neck
+        const s = (t - bulbZone) / (1 - bulbZone);
+        return geo.neck + (geo.w - geo.neck) * (1 - s * s);
       }
     }
 
