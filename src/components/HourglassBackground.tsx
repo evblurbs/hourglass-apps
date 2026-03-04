@@ -51,13 +51,13 @@ export default function HourglassBackground() {
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
       if (ry <= halfH) {
-        const t = ry / halfH;
-        const blend = t * t * t * t; // t^4 for bulbous shape
-        return geo.w * (1 - blend) + geo.neck * blend;
+        // Upper bulb: sin curve peaks at middle of chamber
+        const t = ry / halfH; // 0 at top, 1 at neck
+        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       } else {
-        const t = (ry - halfH) / halfH;
-        const blend = t * t * t * t;
-        return geo.neck * (1 - blend) + geo.w * blend;
+        // Lower bulb: sin curve peaks at middle of chamber
+        const t = (ry - halfH) / halfH; // 0 at neck, 1 at bottom
+        return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       }
     }
 
