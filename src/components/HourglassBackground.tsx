@@ -139,18 +139,18 @@ export default function HourglassBackground() {
     }
 
     function spawnSplash(x: number, y: number, speed: number) {
-      const count = 3 + Math.floor(Math.random() * 3);
+      const count = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < count; i++) {
         if (splashes.length >= MAX_SPLASHES) break;
-        const angle = -Math.PI * (0.15 + Math.random() * 0.7); // spray upward and outward
-        const force = speed * (0.3 + Math.random() * 0.5);
+        const angle = -Math.PI * (0.15 + Math.random() * 0.7);
+        const force = speed * (0.15 + Math.random() * 0.25);
         splashes.push({
           x,
           y,
           vx: Math.cos(angle) * force * (Math.random() > 0.5 ? 1 : -1),
           vy: Math.sin(angle) * force,
           life: 0,
-          maxLife: 30 + Math.random() * 40,
+          maxLife: 20 + Math.random() * 25,
         });
       }
     }
@@ -252,9 +252,9 @@ export default function HourglassBackground() {
         }
 
         // Fade out over lifetime
-        const alpha = 0.15 * (1 - s.life / s.maxLife);
+        const alpha = 0.06 * (1 - s.life / s.maxLife);
         ctx!.fillStyle = `rgba(${sr}, ${sg}, ${sb}, ${alpha})`;
-        ctx!.fillRect(s.x - 1, s.y - 1, 2, 2);
+        ctx!.fillRect(s.x - 0.5, s.y - 0.5, 1, 1);
       }
     }
 
