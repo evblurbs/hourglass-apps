@@ -25,8 +25,6 @@ export default function HourglassBackground() {
     const DOT_SPACING = 5;
     const DOT_SIZE = 1.5;
     const GRAVITY = 0.06;
-    const NAV_HEIGHT = 57;
-    const FOOTER_HEIGHT = 73;
     const MAX_FALLING = 80;
 
     // Volume lookup tables for smooth draining
@@ -54,17 +52,24 @@ export default function HourglassBackground() {
       if (ry < 0 || ry > halfH * 2) return 0;
       if (ry <= halfH) {
         const t = ry / halfH;
-        return geo.w * (1 - t * t) + geo.neck * (t * t);
+        const blend = t * t * t * t; // t^4 for bulbous shape
+        return geo.w * (1 - blend) + geo.neck * blend;
       } else {
         const t = (ry - halfH) / halfH;
-        return geo.neck * (1 - t * t) + geo.w * (t * t);
+        const blend = t * t * t * t;
+        return geo.neck * (1 - blend) + geo.w * blend;
       }
     }
 
     function computeGeometry() {
+      const header = document.querySelector("header");
+      const footer = document.querySelector("footer");
+      const navBottom = header ? header.getBoundingClientRect().bottom : 57;
+      const footerTop = footer ? footer.getBoundingClientRect().top : canvas!.height - 73;
+
       geo.cx = canvas!.width / 2;
-      geo.top = NAV_HEIGHT;
-      geo.bottom = canvas!.height - FOOTER_HEIGHT;
+      geo.top = navBottom;
+      geo.bottom = footerTop;
       geo.cy = geo.top + (geo.bottom - geo.top) / 2;
       geo.w = Math.min(canvas!.width * 0.75, (geo.bottom - geo.top) * 0.55);
       geo.neck = geo.w * 0.035;
