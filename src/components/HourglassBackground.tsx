@@ -9,6 +9,15 @@ interface FallingParticle {
   vy: number;
 }
 
+interface SplashParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+}
+
 export default function HourglassBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -20,12 +29,14 @@ export default function HourglassBackground() {
 
     let animationId: number;
     let falling: FallingParticle[] = [];
+    let splashes: SplashParticle[] = [];
     const startTime = Date.now();
     const DURATION = 60_000;
     const DOT_SPACING = 5;
     const DOT_SIZE = 1.5;
     const GRAVITY = 0.06;
     const MAX_FALLING = 80;
+    const MAX_SPLASHES = 200;
 
     // Volume lookup tables for smooth draining
     let upperVolTable: number[] = [];
@@ -43,6 +54,7 @@ export default function HourglassBackground() {
         bg: isDark ? "#0a0a0a" : "#ffffff",
         sand: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
         falling: isDark ? "rgba(255, 255, 255, 0.14)" : "rgba(0, 0, 0, 0.10)",
+        splashBase: isDark ? [255, 255, 255] as const : [0, 0, 0] as const,
       };
     }
 
@@ -51,12 +63,10 @@ export default function HourglassBackground() {
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
       if (ry <= halfH) {
-        // Upper bulb: sin curve peaks at middle of chamber
-        const t = ry / halfH; // 0 at top, 1 at neck
+        const t = ry / halfH;
         return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       } else {
-        // Lower bulb: same sin curve as top, mirrored
-        const t = (ry - halfH) / halfH; // 0 at neck, 1 at bottom
+        const t = (ry - halfH) / halfH;
         return Math.max(geo.neck, geo.w * Math.sin(t * Math.PI));
       }
     }
@@ -126,6 +136,23 @@ export default function HourglassBackground() {
       return lowerYTable[lo];
     }
 
+    function spawnSplash(x: number, y: number, speed: number) {
+      const count = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        if (splashes.length >= MAX_SPLASHES) break;
+        const angle = -Math.PI * (0.15 + Math.random() * 0.7); // spray upward and outward
+        const force = speed * (0.3 + Math.random() * 0.5);
+        splashes.push({
+          x,
+          y,
+          vx: Math.cos(angle) * force * (Math.random() > 0.5 ? 1 : -1),
+          vy: Math.sin(angle) * force,
+          life: 0,
+          maxLife: 30 + Math.random() * 40,
+        });
+      }
+    }
+
     function resize() {
       canvas!.width = window.innerWidth;
       canvas!.height = window.innerHeight;
@@ -139,7 +166,6 @@ export default function HourglassBackground() {
     function draw() {
       const colors = getColors();
 
-      // Fill canvas with the page background color so it's opaque
       ctx!.fillStyle = colors.bg;
       ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 
@@ -151,7 +177,7 @@ export default function HourglassBackground() {
 
       ctx!.fillStyle = colors.sand;
 
-      // Upper sand: from topSurface down to neck
+      // Upper sand
       if (progress < 1) {
         for (let y = topSurface; y < geo.cy; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
@@ -162,7 +188,7 @@ export default function HourglassBackground() {
         }
       }
 
-      // Lower sand: from bottomSurface down to bottom
+      // Lower sand
       if (progress > 0) {
         for (let y = bottomSurface; y < geo.bottom; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
@@ -173,7 +199,7 @@ export default function HourglassBackground() {
         }
       }
 
-      // Falling particles through neck
+      // Spawn falling particles through neck
       if (progress < 1 && falling.length < MAX_FALLING) {
         falling.push({
           x: geo.cx + (Math.random() - 0.5) * geo.neck * 0.5,
@@ -183,6 +209,7 @@ export default function HourglassBackground() {
         });
       }
 
+      // Update and draw falling particles
       ctx!.fillStyle = colors.falling;
       for (let i = falling.length - 1; i >= 0; i--) {
         const p = falling[i];
@@ -191,18 +218,48 @@ export default function HourglassBackground() {
         p.y += p.vy;
 
         if (p.y >= bottomSurface || p.y > geo.bottom) {
+          // Spawn splash on impact
+          spawnSplash(p.x, Math.min(p.y, bottomSurface), p.vy);
           falling.splice(i, 1);
           continue;
         }
 
         ctx!.fillRect(p.x - DOT_SIZE / 2, p.y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
       }
+
+      // Update and draw splash particles
+      const [sr, sg, sb] = colors.splashBase;
+      for (let i = splashes.length - 1; i >= 0; i--) {
+        const s = splashes[i];
+        s.vy += GRAVITY * 0.5; // lighter gravity for dust
+        s.vx *= 0.98; // air friction
+        s.x += s.vx;
+        s.y += s.vy;
+        s.life++;
+
+        if (s.life >= s.maxLife) {
+          splashes.splice(i, 1);
+          continue;
+        }
+
+        // Constrain within hourglass walls
+        const hw = widthAt(s.y) / 2;
+        if (hw > 0) {
+          if (s.x > geo.cx + hw) { s.x = geo.cx + hw; s.vx *= -0.3; }
+          if (s.x < geo.cx - hw) { s.x = geo.cx - hw; s.vx *= -0.3; }
+        }
+
+        // Fade out over lifetime
+        const alpha = 0.15 * (1 - s.life / s.maxLife);
+        ctx!.fillStyle = `rgba(${sr}, ${sg}, ${sb}, ${alpha})`;
+        ctx!.fillRect(s.x - 1, s.y - 1, 2, 2);
+      }
     }
 
     function loop() {
       draw();
       const elapsed = Date.now() - startTime;
-      if (elapsed >= DURATION && falling.length === 0) return;
+      if (elapsed >= DURATION && falling.length === 0 && splashes.length === 0) return;
       animationId = requestAnimationFrame(loop);
     }
 
