@@ -3,9 +3,16 @@ import SubscribeForm from "@/components/SubscribeForm";
 
 const apps = [
   {
-    name: "Example App",
-    description: "A placeholder for your first app. Replace this with your real apps.",
-    status: "coming soon" as const,
+    name: "Simple Budget",
+    description:
+      "A personal budgeting app for tracking expenses, income, and recurring costs with a visual dashboard.",
+    status: "beta" as const,
+  },
+  {
+    name: "10YC",
+    description:
+      "A mobile app for rating and reviewing meals under $10 with location-based discovery and restaurant search.",
+    status: "beta" as const,
   },
 ];
 
