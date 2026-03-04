@@ -14,6 +14,12 @@ const apps = [
       "A mobile app for rating and reviewing meals under $10 with location-based discovery and restaurant search.",
     status: "beta" as const,
   },
+  {
+    name: "FlipLink",
+    description:
+      "A smart redirection platform with physical QR code products that can be claimed and pointed to any URL.",
+    status: "beta" as const,
+  },
 ];
 
 export default function Home() {
