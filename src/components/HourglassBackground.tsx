@@ -18,6 +18,9 @@ interface SplashParticle {
   maxLife: number;
 }
 
+// Module-level state so animation persists across page navigations
+let persistedStartTime: number | null = null;
+
 export default function HourglassBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -27,11 +30,15 @@ export default function HourglassBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    if (!persistedStartTime) {
+      persistedStartTime = Date.now();
+    }
+    const startTime = persistedStartTime;
+
     let animationId: number;
     let falling: FallingParticle[] = [];
     let splashes: SplashParticle[] = [];
-    const startTime = Date.now();
-    const DURATION = 60_000;
+    const DURATION = 25 * 60 * 1000; // 25 minutes
     const DOT_SPACING = 5;
     const DOT_SIZE = 1.5;
     const GRAVITY = 0.06;
