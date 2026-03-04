@@ -40,12 +40,6 @@ export default function RootLayout({
             </Link>
             <div className="flex gap-6 text-sm">
               <Link
-                href="/"
-                className="text-zinc-600 transition-colors hover:text-foreground dark:text-zinc-400"
-              >
-                Apps
-              </Link>
-              <Link
                 href="/blog"
                 className="text-zinc-600 transition-colors hover:text-foreground dark:text-zinc-400"
               >
