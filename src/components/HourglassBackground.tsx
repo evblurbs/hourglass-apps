@@ -63,7 +63,7 @@ export default function HourglassBackground() {
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
       // ~20% of content width (max-w-3xl = 768px) for flat caps at top/bottom
-      const capWidth = Math.min(768 * 0.2, geo.w * 0.3);
+      const capWidth = Math.min(768 * 0.4, geo.w * 0.5);
       const bulge = geo.w - capWidth;
       if (ry <= halfH) {
         // Upper: capWidth at top (t=0), bulges to geo.w, narrows to neck (t=1)
