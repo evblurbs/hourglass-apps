@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Blog - Hourglass Apps",
-  description: "Posts about the apps I'm building.",
+  description: "Posts about the apps we're building.",
 };
 
 export default function BlogIndex() {

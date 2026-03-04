@@ -37,7 +37,7 @@ export default function SubscribeForm() {
     <div className="rounded-lg border border-black/[.08] p-6 dark:border-white/[.1]">
       <h3 className="mb-2 text-lg font-semibold">Stay in the loop</h3>
       <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
-        Get notified when I launch new apps or publish new posts.
+        Get notified when we launch new apps or publish new posts.
       </p>
       {status === "success" ? (
         <p className="text-sm text-green-600 dark:text-green-400">{message}</p>

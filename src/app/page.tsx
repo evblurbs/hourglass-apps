@@ -24,7 +24,7 @@ export default function Home() {
           Hourglass Apps
         </h1>
         <p className="max-w-lg text-zinc-600 dark:text-zinc-400">
-          Apps built to make the most of your time. Here&apos;s what I&apos;m working on.
+          Apps built to make the most of your time. Here&apos;s what we&apos;re working on.
         </p>
       </section>
 
