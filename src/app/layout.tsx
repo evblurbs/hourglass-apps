@@ -36,7 +36,7 @@ export default function RootLayout({
               href="/"
               className="text-lg font-semibold tracking-tight"
             >
-              Hourglass Apps
+              ⏳ Apps
             </Link>
             <div className="flex gap-6 text-sm">
               <Link
