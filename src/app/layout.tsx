@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
       >
         <header className="border-b border-black/[.08] dark:border-white/[.1]">
           <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
@@ -52,10 +52,24 @@ export default function RootLayout({
             </div>
           </nav>
         </header>
-        <main className="mx-auto max-w-3xl px-6 py-12">{children}</main>
-        <footer className="border-t border-black/[.08] dark:border-white/[.1]">
-          <div className="mx-auto max-w-3xl px-6 py-8 text-center text-sm text-zinc-500">
-            &copy; {new Date().getFullYear()} Hourglass Apps
+        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">{children}</main>
+        <footer className="mt-auto border-t border-black/[.08] dark:border-white/[.1]">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 px-6 py-8 text-sm text-zinc-500">
+            <div className="flex gap-4">
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-foreground"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="transition-colors hover:text-foreground"
+              >
+                Terms &amp; Conditions
+              </Link>
+            </div>
+            <p>&copy; {new Date().getFullYear()} Hourglass Apps</p>
           </div>
         </footer>
       </body>
