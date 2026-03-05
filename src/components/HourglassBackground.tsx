@@ -169,13 +169,26 @@ export default function HourglassBackground() {
       }
     }
 
+    let lastWidth = 0;
+    let lastHeight = 0;
+
     function resize() {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Skip resize if only height changed slightly (mobile URL bar)
+      if (lastWidth === w && Math.abs(lastHeight - h) < 100) return;
+      lastWidth = w;
+      lastHeight = h;
+      canvas!.width = w;
+      canvas!.height = h;
       computeGeometry();
       computeVolumeTables();
     }
 
+    resize();
+    // Force initial dimensions
+    lastWidth = 0;
+    lastHeight = 0;
     resize();
     window.addEventListener("resize", resize);
 
