@@ -194,23 +194,31 @@ export default function HourglassBackground() {
 
       ctx!.fillStyle = colors.sand;
 
-      // Upper sand
+      const surfaceDip = 25; // how much the surface curves
+
+      // Upper sand — surface dips down in center (concave, funneling to neck)
       if (progress < 1) {
-        for (let y = topSurface; y < geo.cy; y += DOT_SPACING) {
+        for (let y = topSurface - surfaceDip; y < geo.cy; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
           for (let x = geo.cx - hw; x <= geo.cx + hw; x += DOT_SPACING) {
+            const dx = (x - geo.cx) / (hw || 1);
+            const localSurface = topSurface + surfaceDip * (1 - dx * dx);
+            if (y < localSurface) continue;
             ctx!.fillRect(x - DOT_SIZE / 2, y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
           }
         }
       }
 
-      // Lower sand
+      // Lower sand — surface mounds up in center (convex, pile where sand falls)
       if (progress > 0) {
-        for (let y = bottomSurface; y < geo.bottom; y += DOT_SPACING) {
+        for (let y = bottomSurface - surfaceDip; y < geo.bottom; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
           for (let x = geo.cx - hw; x <= geo.cx + hw; x += DOT_SPACING) {
+            const dx = (x - geo.cx) / (hw || 1);
+            const localSurface = bottomSurface + surfaceDip * dx * dx;
+            if (y < localSurface) continue;
             ctx!.fillRect(x - DOT_SIZE / 2, y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
           }
         }
