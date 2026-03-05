@@ -69,16 +69,17 @@ export default function HourglassBackground() {
       const halfH = (geo.bottom - geo.top) / 2;
       const ry = y - geo.top;
       if (ry < 0 || ry > halfH * 2) return 0;
-      const bulbZone = 0.35;
+      const capWidth = geo.w * 0.55;
+      const bulbZone = 0.3;
 
       // Mirror: use distance from nearest end so both halves are identical
       const distFromEnd = ry <= halfH ? ry : halfH * 2 - ry;
       const t = distFromEnd / halfH; // 0 at cap, 1 at neck
 
       if (t <= bulbZone) {
-        // Circular arc: rounded bubble from 0 to geo.w
+        // Circular arc: rounded from capWidth up to geo.w
         const s = t / bulbZone;
-        return geo.w * Math.sin(s * Math.PI / 2);
+        return capWidth + (geo.w - capWidth) * Math.sin(s * Math.PI / 2);
       } else {
         // Concave funnel from geo.w down to neck
         const s = (t - bulbZone) / (1 - bulbZone);
