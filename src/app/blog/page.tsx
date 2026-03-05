@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
-import SubscribeForm from "@/components/SubscribeForm";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -48,10 +48,6 @@ export default function BlogIndex() {
             ))}
           </div>
         )}
-      </section>
-
-      <section>
-        <SubscribeForm />
       </section>
     </div>
   );

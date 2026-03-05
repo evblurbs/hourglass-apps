@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import SubscribeForm from "@/components/SubscribeForm";
+
 
 export const metadata: Metadata = {
   title: "About - Hourglass Apps",
@@ -23,10 +23,6 @@ export default function About() {
             ourselves.
           </p>
         </div>
-      </section>
-
-      <section>
-        <SubscribeForm />
       </section>
     </div>
   );
