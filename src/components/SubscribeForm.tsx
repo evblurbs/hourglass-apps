@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SubscribeForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (localStorage.getItem("subscribed")) {
+      setStatus("success");
+      setMessage("You're subscribed! Thanks for signing up.");
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,6 +31,7 @@ export default function SubscribeForm() {
         throw new Error(data.error || "Something went wrong");
       }
 
+      localStorage.setItem("subscribed", "true");
       setStatus("success");
       setMessage("You're subscribed! Thanks for signing up.");
       setEmail("");
