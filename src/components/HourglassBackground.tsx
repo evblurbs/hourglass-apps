@@ -185,8 +185,9 @@ export default function HourglassBackground() {
       ctx!.fillStyle = colors.bg;
       ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 
+      const FILL = 0.88; // Start 88% full, as if just flipped
       const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / DURATION, 1);
+      const progress = (1 - FILL) + Math.min(elapsed / DURATION, 1) * FILL;
 
       const topSurface = getUpperSandSurface(progress);
       const bottomSurface = getLowerSandSurface(progress);
