@@ -1,5 +1,4 @@
 import AppCard from "@/components/AppCard";
-import SubscribeForm from "@/components/SubscribeForm";
 
 const apps = [
   {
@@ -38,10 +37,6 @@ export default function Home() {
             <AppCard key={app.name} {...app} />
           ))}
         </div>
-      </section>
-
-      <section className="mt-auto">
-        <SubscribeForm />
       </section>
     </div>
   );
