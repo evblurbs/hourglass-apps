@@ -180,9 +180,6 @@ export default function HourglassBackground() {
     window.addEventListener("resize", resize);
 
     const FILL = 0.92;
-    const FLIP_PAUSE = 300;
-    const FLIP_ANIM = 1000;
-    const FLIP_TOTAL = FLIP_PAUSE + FLIP_ANIM;
     const DIP_SETTLE = 2500; // ms for surface dip to ease in after flip
     const MAX_DIP = 25;
 
@@ -231,33 +228,10 @@ export default function HourglassBackground() {
       ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 
       const elapsed = Date.now() - startTime;
+      const progress = (1 - FILL) + Math.min(elapsed / DURATION, 1) * FILL;
 
-      if (elapsed < FLIP_TOTAL) {
-        // Flip phase: sand at bottom, canvas rotates 180°
-        const flipT = Math.max(0, (elapsed - FLIP_PAUSE) / FLIP_ANIM);
-        const eased = flipT < 0.5
-          ? 2 * flipT * flipT
-          : 1 - Math.pow(-2 * flipT + 2, 2) / 2;
-        const angle = eased * Math.PI;
-
-        ctx!.save();
-        ctx!.translate(geo.cx, geo.cy);
-        ctx!.rotate(angle);
-        ctx!.translate(-geo.cx, -geo.cy);
-
-        // Draw sand at bottom only (finished state, will rotate to top)
-        drawSand(colors, 1, 0);
-
-        ctx!.restore();
-        return;
-      }
-
-      // Drain phase
-      const drainElapsed = elapsed - FLIP_TOTAL;
-      const progress = (1 - FILL) + Math.min(drainElapsed / DURATION, 1) * FILL;
-
-      // Ease in the surface dip gradually after flip
-      const dipT = Math.min(drainElapsed / DIP_SETTLE, 1);
+      // Ease in the surface dip gradually
+      const dipT = Math.min(elapsed / DIP_SETTLE, 1);
       const dip = MAX_DIP * dipT * dipT; // ease-in quadratic
 
       const bottomSurface = drawSand(colors, progress, dip);
@@ -319,8 +293,7 @@ export default function HourglassBackground() {
     function loop() {
       draw();
       const elapsed = Date.now() - startTime;
-      const drainElapsed = Math.max(0, elapsed - FLIP_TOTAL);
-      if (drainElapsed >= DURATION && falling.length === 0 && splashes.length === 0) return;
+      if (elapsed >= DURATION && falling.length === 0 && splashes.length === 0) return;
       animationId = requestAnimationFrame(loop);
     }
 
