@@ -5,7 +5,7 @@ const apps = [
   {
     name: "Simple Budget",
     description:
-      "A personal budgeting app for tracking expenses, income, and recurring costs with a visual dashboard.",
+      "A personal budgeting app built around manual transaction entry — no bank connections, just purposeful recording that keeps you aware of every dollar.",
     status: "beta" as const,
   },
   {
@@ -32,7 +32,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-xl font-semibold">Apps</h2>
+        <h2 className="mb-4 text-xl font-semibold">Projects</h2>
         <div className="grid gap-4">
           {apps.map((app) => (
             <AppCard key={app.name} {...app} />
