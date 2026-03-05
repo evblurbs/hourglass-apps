@@ -183,9 +183,10 @@ export default function HourglassBackground() {
     const FLIP_PAUSE = 300;
     const FLIP_ANIM = 1000;
     const FLIP_TOTAL = FLIP_PAUSE + FLIP_ANIM;
-    const surfaceDip = 25;
+    const DIP_SETTLE = 800; // ms for surface dip to ease in after flip
+    const MAX_DIP = 25;
 
-    function drawSand(colors: ReturnType<typeof getColors>, progress: number) {
+    function drawSand(colors: ReturnType<typeof getColors>, progress: number, dip: number) {
       const topSurface = getUpperSandSurface(progress);
       const lowerFill = Math.max(0, progress - (1 - FILL));
       const bottomSurface = getLowerSandSurface(lowerFill);
@@ -194,12 +195,12 @@ export default function HourglassBackground() {
 
       // Upper sand — concave surface
       if (progress < 1) {
-        for (let y = topSurface - surfaceDip; y < geo.cy; y += DOT_SPACING) {
+        for (let y = topSurface - dip; y < geo.cy; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
           for (let x = geo.cx - hw; x <= geo.cx + hw; x += DOT_SPACING) {
             const dx = (x - geo.cx) / (hw || 1);
-            const localSurface = topSurface + surfaceDip * (1 - dx * dx);
+            const localSurface = topSurface + dip * (1 - dx * dx);
             if (y < localSurface) continue;
             ctx!.fillRect(x - DOT_SIZE / 2, y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
           }
@@ -208,12 +209,12 @@ export default function HourglassBackground() {
 
       // Lower sand — mounded surface
       if (lowerFill > 0) {
-        for (let y = bottomSurface - surfaceDip; y < geo.bottom; y += DOT_SPACING) {
+        for (let y = bottomSurface - dip; y < geo.bottom; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
           for (let x = geo.cx - hw; x <= geo.cx + hw; x += DOT_SPACING) {
             const dx = (x - geo.cx) / (hw || 1);
-            const localSurface = bottomSurface + surfaceDip * dx * dx;
+            const localSurface = bottomSurface + dip * dx * dx;
             if (y < localSurface) continue;
             ctx!.fillRect(x - DOT_SIZE / 2, y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
           }
@@ -245,7 +246,7 @@ export default function HourglassBackground() {
         ctx!.translate(-geo.cx, -geo.cy);
 
         // Draw sand at bottom only (finished state, will rotate to top)
-        drawSand(colors, 1);
+        drawSand(colors, 1, 0);
 
         ctx!.restore();
         return;
@@ -255,7 +256,11 @@ export default function HourglassBackground() {
       const drainElapsed = elapsed - FLIP_TOTAL;
       const progress = (1 - FILL) + Math.min(drainElapsed / DURATION, 1) * FILL;
 
-      const bottomSurface = drawSand(colors, progress);
+      // Ease in the surface dip gradually after flip
+      const dipT = Math.min(drainElapsed / DIP_SETTLE, 1);
+      const dip = MAX_DIP * dipT * dipT; // ease-in quadratic
+
+      const bottomSurface = drawSand(colors, progress, dip);
 
       // Spawn falling particles through neck
       if (progress < 1 && falling.length < MAX_FALLING) {
