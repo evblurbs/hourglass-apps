@@ -179,24 +179,20 @@ export default function HourglassBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    function draw() {
-      const colors = getColors();
+    const FILL = 0.92;
+    const FLIP_PAUSE = 300;
+    const FLIP_ANIM = 1000;
+    const FLIP_TOTAL = FLIP_PAUSE + FLIP_ANIM;
+    const surfaceDip = 25;
 
-      ctx!.fillStyle = colors.bg;
-      ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
-
-      const FILL = 0.88; // Start 88% full, as if just flipped
-      const elapsed = Date.now() - startTime;
-      const progress = (1 - FILL) + Math.min(elapsed / DURATION, 1) * FILL;
-
+    function drawSand(colors: ReturnType<typeof getColors>, progress: number) {
       const topSurface = getUpperSandSurface(progress);
-      const bottomSurface = getLowerSandSurface(Math.max(0, progress - (1 - FILL)));
+      const lowerFill = Math.max(0, progress - (1 - FILL));
+      const bottomSurface = getLowerSandSurface(lowerFill);
 
       ctx!.fillStyle = colors.sand;
 
-      const surfaceDip = 25; // how much the surface curves
-
-      // Upper sand — surface dips down in center (concave, funneling to neck)
+      // Upper sand — concave surface
       if (progress < 1) {
         for (let y = topSurface - surfaceDip; y < geo.cy; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
@@ -210,8 +206,8 @@ export default function HourglassBackground() {
         }
       }
 
-      // Lower sand — surface mounds up in center (convex, pile where sand falls)
-      if (progress > 0) {
+      // Lower sand — mounded surface
+      if (lowerFill > 0) {
         for (let y = bottomSurface - surfaceDip; y < geo.bottom; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
@@ -223,6 +219,43 @@ export default function HourglassBackground() {
           }
         }
       }
+
+      return bottomSurface;
+    }
+
+    function draw() {
+      const colors = getColors();
+
+      ctx!.fillStyle = colors.bg;
+      ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
+
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed < FLIP_TOTAL) {
+        // Flip phase: sand at bottom, canvas rotates 180°
+        const flipT = Math.max(0, (elapsed - FLIP_PAUSE) / FLIP_ANIM);
+        const eased = flipT < 0.5
+          ? 2 * flipT * flipT
+          : 1 - Math.pow(-2 * flipT + 2, 2) / 2;
+        const angle = eased * Math.PI;
+
+        ctx!.save();
+        ctx!.translate(geo.cx, geo.cy);
+        ctx!.rotate(angle);
+        ctx!.translate(-geo.cx, -geo.cy);
+
+        // Draw sand at bottom only (finished state, will rotate to top)
+        drawSand(colors, 1);
+
+        ctx!.restore();
+        return;
+      }
+
+      // Drain phase
+      const drainElapsed = elapsed - FLIP_TOTAL;
+      const progress = (1 - FILL) + Math.min(drainElapsed / DURATION, 1) * FILL;
+
+      const bottomSurface = drawSand(colors, progress);
 
       // Spawn falling particles through neck
       if (progress < 1 && falling.length < MAX_FALLING) {
@@ -243,7 +276,6 @@ export default function HourglassBackground() {
         p.y += p.vy;
 
         if (p.y >= bottomSurface || p.y > geo.bottom) {
-          // Spawn splash on impact
           spawnSplash(p.x, Math.min(p.y, bottomSurface), p.vy);
           falling.splice(i, 1);
           continue;
@@ -256,8 +288,8 @@ export default function HourglassBackground() {
       const [sr, sg, sb] = colors.splashBase;
       for (let i = splashes.length - 1; i >= 0; i--) {
         const s = splashes[i];
-        s.vy += GRAVITY * 0.5; // lighter gravity for dust
-        s.vx *= 0.98; // air friction
+        s.vy += GRAVITY * 0.5;
+        s.vx *= 0.98;
         s.x += s.vx;
         s.y += s.vy;
         s.life++;
@@ -267,14 +299,12 @@ export default function HourglassBackground() {
           continue;
         }
 
-        // Constrain within hourglass walls
         const hw = widthAt(s.y) / 2;
         if (hw > 0) {
           if (s.x > geo.cx + hw) { s.x = geo.cx + hw; s.vx *= -0.3; }
           if (s.x < geo.cx - hw) { s.x = geo.cx - hw; s.vx *= -0.3; }
         }
 
-        // Fade out over lifetime
         const alpha = 0.06 * (1 - s.life / s.maxLife);
         ctx!.fillStyle = `rgba(${sr}, ${sg}, ${sb}, ${alpha})`;
         ctx!.fillRect(s.x - 0.5, s.y - 0.5, 1, 1);
@@ -284,7 +314,8 @@ export default function HourglassBackground() {
     function loop() {
       draw();
       const elapsed = Date.now() - startTime;
-      if (elapsed >= DURATION && falling.length === 0 && splashes.length === 0) return;
+      const drainElapsed = Math.max(0, elapsed - FLIP_TOTAL);
+      if (drainElapsed >= DURATION && falling.length === 0 && splashes.length === 0) return;
       animationId = requestAnimationFrame(loop);
     }
 
