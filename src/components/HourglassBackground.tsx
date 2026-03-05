@@ -183,7 +183,7 @@ export default function HourglassBackground() {
     const FLIP_PAUSE = 300;
     const FLIP_ANIM = 1000;
     const FLIP_TOTAL = FLIP_PAUSE + FLIP_ANIM;
-    const DIP_SETTLE = 800; // ms for surface dip to ease in after flip
+    const DIP_SETTLE = 2500; // ms for surface dip to ease in after flip
     const MAX_DIP = 25;
 
     function drawSand(colors: ReturnType<typeof getColors>, progress: number, dip: number) {
