@@ -24,7 +24,7 @@ const apps = [
 
 export default function Home() {
   return (
-    <div className="space-y-12">
+    <div className="flex min-h-full flex-1 flex-col space-y-12">
       <section>
         <p className="text-zinc-600 dark:text-zinc-400">
           We build apps we love to use, with an emphasis on community and personal connection. Here&apos;s what we&apos;re working on.
@@ -40,7 +40,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
+      <section className="mt-auto">
         <SubscribeForm />
       </section>
     </div>
