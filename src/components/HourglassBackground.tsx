@@ -190,7 +190,7 @@ export default function HourglassBackground() {
       const progress = (1 - FILL) + Math.min(elapsed / DURATION, 1) * FILL;
 
       const topSurface = getUpperSandSurface(progress);
-      const bottomSurface = getLowerSandSurface(progress);
+      const bottomSurface = getLowerSandSurface(Math.max(0, progress - (1 - FILL)));
 
       ctx!.fillStyle = colors.sand;
 
