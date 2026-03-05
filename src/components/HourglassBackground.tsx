@@ -179,7 +179,7 @@ export default function HourglassBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    const FILL = 0.92;
+    const FILL = 0.95;
     const DIP_SETTLE = 2500; // ms for surface dip to ease in after flip
     const MAX_DIP = 25;
 
@@ -187,6 +187,10 @@ export default function HourglassBackground() {
       const topSurface = getUpperSandSurface(progress);
       const lowerFill = Math.max(0, progress - (1 - FILL));
       const bottomSurface = getLowerSandSurface(lowerFill);
+
+      // Scale mound by how much is still draining (flat when done)
+      const drainRemaining = Math.max(0, 1 - progress);
+      const lowerDip = dip * Math.min(drainRemaining * 5, 1);
 
       ctx!.fillStyle = colors.sand;
 
@@ -204,14 +208,14 @@ export default function HourglassBackground() {
         }
       }
 
-      // Lower sand — mounded surface
+      // Lower sand — mounded surface (flattens as draining stops)
       if (lowerFill > 0) {
-        for (let y = bottomSurface - dip; y < geo.bottom; y += DOT_SPACING) {
+        for (let y = bottomSurface - lowerDip; y < geo.bottom; y += DOT_SPACING) {
           const hw = widthAt(y) / 2;
           if (hw <= 0) continue;
           for (let x = geo.cx - hw; x <= geo.cx + hw; x += DOT_SPACING) {
             const dx = (x - geo.cx) / (hw || 1);
-            const localSurface = bottomSurface + dip * dx * dx;
+            const localSurface = bottomSurface + lowerDip * dx * dx;
             if (y < localSurface) continue;
             ctx!.fillRect(x - DOT_SIZE / 2, y - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
           }
